@@ -1,8 +1,8 @@
 class TransactionService
   def self.fetch_transactions_from_page(contract_address, page)
     begin
-      # Construct the API URL for MegaETH testnet using old API format
-      api_url = "https://megaeth-testnet.blockscout.com/api?module=account&action=txlist&address=#{contract_address}&sort=asc&filterby=to&page=#{page}&offset=#{BlockchainConfig.blockscout_api_limit}"
+      # Construct the API URL for H testnet using old API format
+      api_url = "#{BlockchainConfig.block_explorer_url}/api?module=account&action=txlist&address=#{contract_address}&sort=asc&filterby=to&page=#{page}&offset=#{BlockchainConfig.blockscout_api_limit}"
       
       puts "Fetching page #{page} from: #{api_url}"
       

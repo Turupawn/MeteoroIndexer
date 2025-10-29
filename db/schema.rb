@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_09_194907) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_09_183355) do
   create_table "function_signatures", force: :cascade do |t|
     t.string "name"
     t.string "signature_str"
@@ -50,6 +50,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_194907) do
     t.string "transaction_hash", null: false
     t.string "method", null: false
     t.integer "sequential_id"
+    t.integer "function_signature_id", null: false
     t.string "from_address", null: false
     t.string "to_address", null: false
     t.text "value"
@@ -64,7 +65,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_194907) do
     t.text "decoded_input"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "function_signature_id", null: false
     t.index ["block_number"], name: "index_transactions_on_block_number"
     t.index ["from_address"], name: "index_transactions_on_from_address"
     t.index ["function_signature_id"], name: "index_transactions_on_function_signature_id"

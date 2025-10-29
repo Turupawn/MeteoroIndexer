@@ -30,7 +30,7 @@ rails games:fetch_new
 RPC_URL=https://megaeth-testnet.blockscout.com/api/v2/rpc
 CONTRACT_ADDRESS=0x1234567890abcdef1234567890abcdef12345678
 CONTRACT_ABI_NAME=two_party_war_game
-BLOCK_EXPLORER_URL=https://megaeth-testnet.blockscout.com/address/
+BLOCK_EXPLORER_URL=https://megaeth-testnet.blockscout.com
 
 # Telegram Bot Configuration (optional)
 TELEGRAM_BOT_TOKEN=your_bot_token_here

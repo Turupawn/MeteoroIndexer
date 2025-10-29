@@ -2,10 +2,10 @@
 # You can override these values using environment variables
 
 default: &default
-  rpc_url: "https://carrot.megaeth.com/rpc"
+  rpc_url: "https://testnet.riselabs.xyz"
   contract_address: "0x64d71A67f0F8803BA5f41CE6893917D3Df105FBe"
   contract_abi_name: "two_party_war_game"
-  block_explorer_url: "https://megaeth-testnet.blockscout.com/address/"
+  block_explorer_url: "https://explorer.testnet.riselabs.xyz"
   sync_schedule_ms: 10000
   max_games_to_process: 20
   blockscout_api_limit: 50  # number of transactions per blockscout API request

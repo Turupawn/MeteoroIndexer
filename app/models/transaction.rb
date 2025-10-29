@@ -51,11 +51,11 @@ class Transaction < ApplicationRecord
   end
 
   def explorer_url
-    "https://megaeth-testnet.blockscout.com/tx/#{transaction_hash}"
+    "#{BlockchainConfig.block_explorer_url}/tx/#{transaction_hash}"
   end
 
   def from_explorer_url
-    "https://megaeth-testnet.blockscout.com/address/#{from_address}"
+    "#{BlockchainConfig.block_explorer_url}/address/#{from_address}"
   end
 
   # Chart data for time series visualization

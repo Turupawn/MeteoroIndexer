@@ -110,7 +110,7 @@
         <div>
           <span class="text-sm font-medium text-gray-500">To Address</span>
           <div class="mt-1">
-            <a href="https://megaeth-testnet.blockscout.com/address/<%= @transaction.to_address %>" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono text-sm break-all">
+            <a href="<%= BlockchainConfig.block_explorer_url %>/address/<%= @transaction.to_address %>" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono text-sm break-all">
               <%= @transaction.to_address %>
             </a>
           </div>

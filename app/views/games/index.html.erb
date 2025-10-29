@@ -48,7 +48,7 @@
             <!-- House Address -->
             <div class="text-center">
               <div class="text-sm font-medium text-blue-200 mb-1">House Address</div>
-              <a href="<%= BlockchainConfig.block_explorer_url %><%= @house_balance[:house_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
+            <a href="<%= BlockchainConfig.block_explorer_url %>/address/<%= @house_balance[:house_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
                 <%= @house_balance[:house_address] %>
               </a>
             </div>
@@ -56,7 +56,7 @@
             <!-- Contract Address -->
             <div class="text-center">
               <div class="text-sm font-medium text-blue-200 mb-1">Contract Address</div>
-              <a href="<%= BlockchainConfig.block_explorer_url %><%= @house_balance[:contract_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
+            <a href="<%= BlockchainConfig.block_explorer_url %>/address/<%= @house_balance[:contract_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
                 <%= @house_balance[:contract_address] %>
               </a>
             </div>
@@ -65,7 +65,7 @@
             <% if @house_balance[:gacha_token_address].present? %>
             <div class="text-center">
               <div class="text-sm font-medium text-blue-200 mb-1">Gacha Token</div>
-              <a href="<%= BlockchainConfig.block_explorer_url %><%= @house_balance[:gacha_token_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
+            <a href="<%= BlockchainConfig.block_explorer_url %>/address/<%= @house_balance[:gacha_token_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
                 <%= @house_balance[:gacha_token_address] %>
               </a>
             </div>
