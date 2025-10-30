@@ -3,7 +3,7 @@
 
 default: &default
   rpc_url: "https://testnet.riselabs.xyz"
-  contract_address: "0x64d71A67f0F8803BA5f41CE6893917D3Df105FBe"
+  contract_address: "0x0"
   contract_abi_name: "two_party_war_game"
   block_explorer_url: "https://explorer.testnet.riselabs.xyz"
   sync_schedule_ms: 10000
