@@ -6,6 +6,7 @@ blockchain_config['rpc_url'] = ENV['RPC_URL'] if ENV['RPC_URL']
 blockchain_config['contract_address'] = ENV['CONTRACT_ADDRESS'] if ENV['CONTRACT_ADDRESS']
 blockchain_config['contract_abi_name'] = ENV['CONTRACT_ABI_NAME'] if ENV['CONTRACT_ABI_NAME']
 blockchain_config['block_explorer_url'] = ENV['BLOCK_EXPLORER_URL'] if ENV['BLOCK_EXPLORER_URL']
+blockchain_config['indexer_url'] = ENV['INDEXER_URL'] if ENV['INDEXER_URL']
 blockchain_config['sync_schedule_ms'] = ENV['BLOCKCHAIN_SYNC_SCHEDULE_MS'].to_i if ENV['BLOCKCHAIN_SYNC_SCHEDULE_MS']
 blockchain_config['max_games_to_process'] = ENV['BLOCKCHAIN_MAX_GAMES_TO_PROCESS'].to_i if ENV['BLOCKCHAIN_MAX_GAMES_TO_PROCESS']
 blockchain_config['blockscout_api_limit'] = ENV['BLOCKSCOUT_API_LIMIT'].to_i if ENV['BLOCKSCOUT_API_LIMIT']
@@ -63,6 +64,10 @@ module BlockchainConfig
 
   def self.block_explorer_url
     Rails.application.config.blockchain['block_explorer_url']
+  end
+
+  def self.indexer_url
+    Rails.application.config.blockchain['indexer_url'] || 'http://localhost:42069'
   end
 
   def self.poll_update_interval

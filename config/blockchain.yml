@@ -6,6 +6,7 @@ default: &default
   contract_address: "0x0"
   contract_abi_name: "two_party_war_game"
   block_explorer_url: "https://explorer.testnet.riselabs.xyz"
+  indexer_url: "http://localhost:42069"
   sync_schedule_ms: 10000
   max_games_to_process: 20
   blockscout_api_limit: 50  # number of transactions per blockscout API request

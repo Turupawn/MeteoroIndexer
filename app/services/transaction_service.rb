@@ -82,13 +82,8 @@ class TransactionService
     highest_sequential_id = Transaction.maximum(:sequential_id) || 0
     next_sequential_id = highest_sequential_id + 1
     
-    # Calculate which page to fetch based on sequential_id
-    # Each page has #{BlockchainConfig.blockscout_api_limit} transactions, so page = (sequential_id - 1) / #{BlockchainConfig.blockscout_api_limit} + 1
-    next_page = ((next_sequential_id - 1) / BlockchainConfig.blockscout_api_limit) + 1
-    
     puts "Highest sequential_id in DB: #{highest_sequential_id}"
     puts "Next sequential_id to fetch: #{next_sequential_id}"
-    puts "Calculated page to fetch: #{next_page}"
     
     # Get the latest transaction we have in the database
     latest_tx = Transaction.order(:timestamp).last
@@ -97,19 +92,109 @@ class TransactionService
       puts "Latest transaction in DB: #{latest_tx.transaction_hash} at #{latest_tx.timestamp} (sequential_id: #{latest_tx.sequential_id})"
     end
     
-    # Fetch transactions starting from the calculated page
-    transactions_data = fetch_transactions_from_page(contract_address, next_page)
+    # Fetch from indexer API - fetch 50 games, 50 randomness posts, and 50 reveals
+    limit = 50
+    all_transactions = []
     
-    # Add sequential_id to each transaction based on page position
-    if transactions_data && !transactions_data.empty?
-      transactions_data.each_with_index do |tx_data, index|
-        # Calculate sequential_id: (page - 1) * #{BlockchainConfig.blockscout_api_limit} + index + 1
-        tx_data[:sequential_id] = (next_page - 1) * BlockchainConfig.blockscout_api_limit + index + 1
-      end
-      puts "Added sequential_ids to #{transactions_data.length} transactions"
+    # Fetch games (these represent commit transactions)
+    # Get the highest game ID we've processed by checking existing commit transactions
+    # Extract game ID from hash like "game_5" -> 5
+    highest_game_id = Transaction.where(method: 'commit')
+                                 .pluck(:transaction_hash)
+                                 .map { |h| h.match(/game_(\d+)/)&.[](1)&.to_i }
+                                 .compact
+                                 .max || 0
+    games = IndexerService.fetch_games(last_id: highest_game_id, limit: limit)
+    
+    games.each do |game|
+      # Create a transaction record for each game (commit)
+      all_transactions << {
+        hash: "game_#{game['id']}", # Use a synthetic hash since indexer doesn't provide tx hash
+        method: 'commit',
+        from: game['player'],
+        to: contract_address,
+        value: game['betAmount'],
+        fee: (game['gasUsed'].to_i * 1_000_000_000).to_s, # Estimate gas price (1 gwei)
+        gas_used: game['gasUsed'],
+        gas_price: '1000000000', # 1 gwei estimate
+        status: 'success',
+        timestamp: Time.current.iso8601, # Indexer doesn't provide timestamp for games
+        block_number: '0',
+        confirmations: '0',
+        raw_input: '',
+        decoded_input: nil,
+        game_id: game['id'].to_i
+      }
     end
     
-    transactions_data
+    # Fetch randomness posts (these represent multiPostRandomness transactions)
+    # Extract randomness ID from hash like "randomness_5" -> 5
+    highest_randomness_id = Transaction.where(method: 'multiPostRandomness')
+                                      .pluck(:transaction_hash)
+                                      .map { |h| h.match(/randomness_(\d+)/)&.[](1)&.to_i }
+                                      .compact
+                                      .max || 0
+    randomness_posts = IndexerService.fetch_randomness_posts(last_id: highest_randomness_id, limit: limit)
+    
+    randomness_posts.each do |post|
+      all_transactions << {
+        hash: "randomness_#{post['id']}",
+        method: 'multiPostRandomness',
+        from: contract_address, # House posts randomness
+        to: contract_address,
+        value: '0',
+        fee: (post['gasUsed'].to_i * 1_000_000_000).to_s,
+        gas_used: post['gasUsed'],
+        gas_price: '1000000000',
+        status: 'success',
+        timestamp: Time.at(post['timestamp'].to_i).iso8601,
+        block_number: '0',
+        confirmations: '0',
+        raw_input: '',
+        decoded_input: nil,
+        randomness_id: post['id'].to_i
+      }
+    end
+    
+    # Fetch reveals
+    # Extract reveal ID from hash like "reveal_5" -> 5
+    highest_reveal_id = Transaction.where(method: 'reveal')
+                                   .pluck(:transaction_hash)
+                                   .map { |h| h.match(/reveal_(\d+)/)&.[](1)&.to_i }
+                                   .compact
+                                   .max || 0
+    reveals = IndexerService.fetch_reveals(last_id: highest_reveal_id, limit: limit)
+    
+    reveals.each do |reveal|
+      all_transactions << {
+        hash: "reveal_#{reveal['id']}",
+        method: 'reveal',
+        from: reveal['player'],
+        to: contract_address,
+        value: '0',
+        fee: (reveal['gasUsed'].to_i * 1_000_000_000).to_s,
+        gas_used: reveal['gasUsed'],
+        gas_price: '1000000000',
+        status: 'success',
+        timestamp: Time.current.iso8601, # Indexer doesn't provide timestamp for reveals
+        block_number: '0',
+        confirmations: '0',
+        raw_input: '',
+        decoded_input: nil,
+        reveal_id: reveal['id'].to_i
+      }
+    end
+    
+    # Sort by ID and assign sequential_ids
+    all_transactions.sort_by! { |tx| [tx[:game_id] || tx[:randomness_id] || tx[:reveal_id] || 0, tx[:method]] }
+    
+    # Assign sequential_ids starting from next_sequential_id
+    all_transactions.each_with_index do |tx_data, index|
+      tx_data[:sequential_id] = next_sequential_id + index
+    end
+    
+    puts "Fetched #{all_transactions.length} transactions from indexer (games: #{games.length}, randomness: #{randomness_posts.length}, reveals: #{reveals.length})"
+    all_transactions
   end
   
   def self.format_eth_value(wei_value)
