@@ -5,10 +5,6 @@ class GamesController < ApplicationController
     @total_transactions = Transaction.count
     @reveal_count = Transaction.reveals.count
     @house_balance = EthBalanceService.get_house_balance
-    
-    # Calculate average transaction costs
-    @house_average_cost = Transaction.house_average_cost || 0
-    @player_average_cost = Transaction.player_average_cost || 0
   end
 
   def show

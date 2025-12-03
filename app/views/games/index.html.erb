@@ -3,6 +3,9 @@
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold text-gray-900">Meteoro Indexer</h1>
       <div class="flex space-x-3">
+        <%= link_to pulse_index_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+          Pulse
+        <% end %>
         <%= link_to transactions_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
           View Transactions
         <% end %>
@@ -82,7 +85,7 @@
       <% end %>
     </div>
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <!-- Total Games -->
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
@@ -109,36 +112,6 @@
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">Total Transactions</p>
             <p class="text-2xl font-semibold text-gray-900"><%= @total_transactions %> (<%= @reveal_count %> reveals)</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- House Average Cost -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-          <div class="p-2 bg-yellow-100 rounded-lg">
-            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">House Avg Cost</p>
-            <p class="text-2xl font-semibold text-gray-900"><%= TransactionService.format_eth_value_detailed(@house_average_cost) %></p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Player Average Cost -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-          <div class="p-2 bg-purple-100 rounded-lg">
-            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">Player Avg Cost</p>
-            <p class="text-2xl font-semibold text-gray-900"><%= TransactionService.format_eth_value_detailed(@player_average_cost) %></p>
           </div>
         </div>
       </div>
