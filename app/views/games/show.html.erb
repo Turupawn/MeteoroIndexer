@@ -96,18 +96,14 @@
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
             <%= case @game.game_state
                 when 'not_started' then 'bg-gray-100 text-gray-800'
-                when 'player_committed' then 'bg-yellow-100 text-yellow-800'
-                when 'hash_posted' then 'bg-blue-100 text-blue-800'
-                when 'revealed' then 'bg-green-100 text-green-800'
-                when 'forfeited' then 'bg-red-100 text-red-800'
+                when 'pending' then 'bg-yellow-100 text-yellow-800'
+                when 'completed' then 'bg-green-100 text-green-800'
                 else 'bg-gray-100 text-gray-800'
                 end %>">
             <%= case @game.game_state
                 when 'not_started' then 'Not Started'
-                when 'player_committed' then 'Committed'
-                when 'hash_posted' then 'Hash Posted'
-                when 'revealed' then 'Revealed'
-                when 'forfeited' then 'Forfeited'
+                when 'pending' then 'Pending VRF'
+                when 'completed' then 'Completed'
                 else 'Unknown'
                 end %>
           </span>
@@ -118,31 +114,31 @@
             <%= @game.bet_amount.present? ? "#{(@game.bet_amount.to_f / 1e18).round(6)} ETH" : "N/A" %>
           </span>
         </div>
+        <% if @game.payout.present? && @game.payout.to_i > 0 %>
         <div class="flex justify-between">
-          <span class="text-sm font-medium text-gray-500">Commit Timestamp:</span>
-          <span class="text-sm text-gray-900" title="<%= @game.commit_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>">
-            <%= time_ago_in_words(@game.commit_timestamp) %> ago
+          <span class="text-sm font-medium text-gray-500">Payout:</span>
+          <span class="text-sm text-green-600 font-mono font-semibold">
+            <%= "#{(@game.payout.to_f / 1e18).round(6)} ETH" %>
           </span>
         </div>
-        <% if @game.house_randomness_timestamp.present? %>
+        <% end %>
         <div class="flex justify-between">
-          <span class="text-sm font-medium text-gray-500">House Randomness Timestamp:</span>
-          <span class="text-sm text-gray-900" title="<%= @game.house_randomness_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>">
-            <%= time_ago_in_words(@game.house_randomness_timestamp) %> ago
+          <span class="text-sm font-medium text-gray-500">Request Timestamp:</span>
+          <span class="text-sm text-gray-900" title="<%= @game.request_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>">
+            <%= time_ago_in_words(@game.request_timestamp) %> ago
+          </span>
+        </div>
+        <% if @game.completed_timestamp.present? %>
+        <div class="flex justify-between">
+          <span class="text-sm font-medium text-gray-500">Completed Timestamp:</span>
+          <span class="text-sm text-gray-900" title="<%= @game.completed_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>">
+            <%= time_ago_in_words(@game.completed_timestamp) %> ago
           </span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm font-medium text-gray-500">Total Duration:</span>
           <span class="text-sm text-gray-900 font-semibold text-blue-600">
-            <%= ((@game.house_randomness_timestamp - @game.commit_timestamp) * 1000).round(0) %> ms
-          </span>
-        </div>
-        <% end %>
-        <% if @game.reveal_timestamp.present? %>
-        <div class="flex justify-between">
-          <span class="text-sm font-medium text-gray-500">Reveal Timestamp:</span>
-          <span class="text-sm text-gray-900" title="<%= @game.reveal_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>">
-            <%= time_ago_in_words(@game.reveal_timestamp) %> ago
+            <%= @game.total_time ? "#{@game.total_time}s" : "N/A" %>
           </span>
         </div>
         <% end %>
@@ -159,53 +155,35 @@
           <span class="text-sm font-medium text-gray-500">Player Address:</span>
           <p class="text-sm text-gray-900 font-mono break-all mt-1"><%= @game.player_address %></p>
         </div>
-        <% if @game.player_commit.present? %>
-        <div>
-          <span class="text-sm font-medium text-gray-500">Player Commit:</span>
-          <p class="text-sm text-gray-900 font-mono break-all mt-1"><%= @game.player_commit %></p>
-        </div>
-        <% end %>
-        <% if @game.player_secret.present? %>
-        <div>
-          <span class="text-sm font-medium text-gray-500">Player Secret:</span>
-          <p class="text-sm text-gray-900 font-mono break-all mt-1"><%= @game.player_secret %></p>
-        </div>
-        <% end %>
         <% if @game.player_card.present? %>
         <div>
           <span class="text-sm font-medium text-gray-500">Player Card:</span>
           <p class="text-sm text-gray-900 font-mono mt-1"><%= @game.player_card.to_i %></p>
         </div>
         <% end %>
+        <div>
+          <span class="text-sm font-medium text-gray-500">Player Won:</span>
+          <p class="text-sm font-mono mt-1 <%= @game.player_won ? 'text-green-600' : 'text-red-600' %>">
+            <%= @game.player_won ? 'Yes' : 'No' %>
+          </p>
+        </div>
       </div>
     </div>
 
-    <!-- House Information -->
+    <!-- Cards -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-medium text-gray-900">House Information</h2>
+        <h2 class="text-lg font-medium text-gray-900">Game Cards</h2>
       </div>
       <div class="px-6 py-4 space-y-4">
-        <% if @game.house_randomness.present? %>
-        <div>
-          <span class="text-sm font-medium text-gray-500">House Randomness:</span>
-          <p class="text-sm text-gray-900 font-mono break-all mt-1"><%= @game.house_randomness %></p>
+        <div class="flex justify-between">
+          <span class="text-sm font-medium text-gray-500">Player Card:</span>
+          <span class="text-sm text-gray-900 font-mono"><%= @game.player_card.present? ? @game.player_card.to_i : "?" %></span>
         </div>
-        <% end %>
-        <% if @game.house_randomness_timestamp.present? %>
-        <div>
-          <span class="text-sm font-medium text-gray-500">House Randomness Timestamp:</span>
-          <p class="text-sm text-gray-900 mt-1" title="<%= @game.house_randomness_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>">
-            <%= time_ago_in_words(@game.house_randomness_timestamp) %> ago
-          </p>
-        </div>
-        <% end %>
-        <% if @game.house_card.present? %>
-        <div>
+        <div class="flex justify-between">
           <span class="text-sm font-medium text-gray-500">House Card:</span>
-          <p class="text-sm text-gray-900 font-mono mt-1"><%= @game.house_card.to_i %></p>
+          <span class="text-sm text-gray-900 font-mono"><%= @game.house_card.present? ? @game.house_card.to_i : "?" %></span>
         </div>
-        <% end %>
       </div>
     </div>
 
@@ -227,42 +205,37 @@
           </div>
         </div>
         
-        <% if @game.result.present? %>
+        <% if @game.game_state == 'completed' && @game.result.present? %>
         <div class="text-center space-y-2">
           <% case @game.result %>
           <% when 'player_won' %>
             <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium bg-green-100 text-green-800">
-              🎉 Player Wins!
+              Player Wins!
             </span>
           <% when 'house_won' %>
             <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium bg-red-100 text-red-800">
-              🏠 House Wins!
+              House Wins!
             </span>
           <% when 'tie' %>
             <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium bg-yellow-100 text-yellow-800">
-              🤝 Tie!
+              Tie!
             </span>
           <% else %>
             <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium bg-gray-100 text-gray-800">
-              ⏳ Pending
+              Unknown
             </span>
           <% end %>
-          <% if @game.house_randomness_timestamp.present? %>
+          <% if @game.total_time.present? %>
             <div class="text-sm text-blue-600 font-medium">
-              ⏱️ Game Duration: <%= ((@game.house_randomness_timestamp - @game.commit_timestamp) * 1000).round(0) %> ms
+              Game Duration: <%= @game.total_time %>s
             </div>
           <% end %>
         </div>
         <% else %>
         <div class="text-center space-y-2">
-          <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium bg-gray-100 text-gray-800">
-            ⏳ Game in Progress
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium bg-yellow-100 text-yellow-800">
+            Waiting for VRF...
           </span>
-          <% if @game.house_randomness_timestamp.present? %>
-            <div class="text-sm text-blue-600 font-medium">
-              ⏱️ Game Duration: <%= ((@game.house_randomness_timestamp - @game.commit_timestamp) * 1000).round(0) %> ms
-            </div>
-          <% end %>
         </div>
         <% end %>
       </div>

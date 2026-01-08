@@ -101,17 +101,32 @@
         </div>
       </div>
 
-      <!-- Total Transactions -->
+      <!-- Pending Games -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-yellow-100 rounded-lg">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Pending Games</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= @pending_games %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed Games -->
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
           <div class="p-2 bg-green-100 rounded-lg">
             <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">Total Transactions</p>
-            <p class="text-2xl font-semibold text-gray-900"><%= @total_transactions %> (<%= @reveal_count %> reveals)</p>
+            <p class="text-sm font-medium text-gray-500">Completed Games</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= @completed_games %></p>
           </div>
         </div>
       </div>
@@ -149,18 +164,14 @@
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                     <%= case game.game_state
                         when 'not_started' then 'bg-gray-100 text-gray-800'
-                        when 'player_committed' then 'bg-yellow-100 text-yellow-800'
-                        when 'hash_posted' then 'bg-blue-100 text-blue-800'
-                        when 'revealed' then 'bg-green-100 text-green-800'
-                        when 'forfeited' then 'bg-red-100 text-red-800'
+                        when 'pending' then 'bg-yellow-100 text-yellow-800'
+                        when 'completed' then 'bg-green-100 text-green-800'
                         else 'bg-gray-100 text-gray-800'
                         end %>">
                     <%= case game.game_state
                         when 'not_started' then 'Not Started'
-                        when 'player_committed' then 'Committed'
-                        when 'hash_posted' then 'Hash Posted'
-                        when 'revealed' then 'Revealed'
-                        when 'forfeited' then 'Forfeited'
+                        when 'pending' then 'Pending VRF'
+                        when 'completed' then 'Completed'
                         else 'Unknown'
                         end %>
                   </span>
@@ -172,11 +183,11 @@
                   <span class="font-mono text-xs"><%= game.bet_amount.present? ? "#{(game.bet_amount.to_f / 1e18).round(6)} ETH" : "N/A" %></span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span title="<%= game.commit_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>"><%= time_ago_in_words(game.commit_timestamp) %> ago</span>
-                  <% if game.house_randomness_timestamp.present? %>
+                  <span title="<%= game.request_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") %>"><%= time_ago_in_words(game.request_timestamp) %> ago</span>
+                  <% if game.completed_timestamp.present? %>
                     <br>
                     <span class="text-xs text-blue-600 font-medium">
-                      Duration: <%= ((game.house_randomness_timestamp - game.commit_timestamp) * 1000).round(0) %> ms
+                      Duration: <%= game.total_time ? "#{game.total_time}s" : "N/A" %>
                     </span>
                   <% end %>
                 </td>

@@ -9,7 +9,6 @@ default: &default
   indexer_url: "http://localhost:42069"
   sync_schedule_ms: 10000
   max_games_to_process: 20
-  blockscout_api_limit: 50  # number of transactions per blockscout API request
   poll_update_interval: 60  # seconds between blockchain polls
   telegram_message_interval: 300  # seconds between aggregated telegram messages
 

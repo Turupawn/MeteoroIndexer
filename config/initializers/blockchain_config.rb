@@ -9,7 +9,6 @@ blockchain_config['block_explorer_url'] = ENV['BLOCK_EXPLORER_URL'] if ENV['BLOC
 blockchain_config['indexer_url'] = ENV['INDEXER_URL'] if ENV['INDEXER_URL']
 blockchain_config['sync_schedule_ms'] = ENV['BLOCKCHAIN_SYNC_SCHEDULE_MS'].to_i if ENV['BLOCKCHAIN_SYNC_SCHEDULE_MS']
 blockchain_config['max_games_to_process'] = ENV['BLOCKCHAIN_MAX_GAMES_TO_PROCESS'].to_i if ENV['BLOCKCHAIN_MAX_GAMES_TO_PROCESS']
-blockchain_config['blockscout_api_limit'] = ENV['BLOCKSCOUT_API_LIMIT'].to_i if ENV['BLOCKSCOUT_API_LIMIT']
 blockchain_config['poll_update_interval'] = ENV['POLL_UPDATE_INTERVAL'].to_i if ENV['POLL_UPDATE_INTERVAL']
 blockchain_config['telegram_message_interval'] = ENV['TELEGRAM_MESSAGE_INTERVAL'].to_i if ENV['TELEGRAM_MESSAGE_INTERVAL']
 
@@ -36,30 +35,6 @@ module BlockchainConfig
 
   def self.max_games_to_process
     Rails.application.config.blockchain['max_games_to_process']
-  end
-
-  def self.blockscout_api_limit
-    Rails.application.config.blockchain['blockscout_api_limit']
-  end
-
-  def self.new_games_batch_size
-    max_games_to_process
-  end
-
-  def self.pending_house_batch_size
-    max_games_to_process
-  end
-
-  def self.pending_player_batch_size
-    max_games_to_process
-  end
-
-  def self.max_pending_house_games
-    max_games_to_process
-  end
-
-  def self.max_pending_player_games
-    max_games_to_process
   end
 
   def self.block_explorer_url

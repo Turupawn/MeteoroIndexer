@@ -2,13 +2,12 @@ class TransactionsController < ApplicationController
   def index
     @transactions = Transaction.recent.page(params[:page]).per(20)
     @total_transactions = Transaction.count
-    @commit_count = Transaction.commits.count
-    @reveal_count = Transaction.reveals.count
-    @multi_post_randomness_count = Transaction.multi_post_randomness.count
-    
-    # Calculate average costs from database
-    @house_average_cost = Transaction.house_average_cost || 0
+    @roll_dice_count = Transaction.roll_dice.count
+    @vrf_callback_count = Transaction.vrf_callbacks.count
+
+    # Calculate average costs from database (VRF)
     @player_average_cost = Transaction.player_average_cost || 0
+    @vrf_average_cost = Transaction.vrf_average_cost || 0
   end
 
   def show
@@ -16,7 +15,6 @@ class TransactionsController < ApplicationController
   end
 
   def chart
-    # Get transaction data grouped by day for the last 30 days
     @chart_data = Transaction.chart_data
   end
 end

@@ -23,28 +23,28 @@
     <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 mb-6 text-white">
       <h2 class="text-xl font-bold mb-4 text-center">Average Transaction Costs</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <!-- House Average -->
-               <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-                 <div class="text-lg font-semibold mb-2">House Average</div>
-                 <div class="text-2xl font-bold text-yellow-300">
-                   <%= TransactionService.format_eth_value_detailed(@house_average_cost) %>
-                 </div>
-                 <div class="text-xs opacity-75 mt-1">MultiPostRandomness transactions</div>
-               </div>
+        <!-- Player Average -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+          <div class="text-lg font-semibold mb-2">Player Average</div>
+          <div class="text-2xl font-bold text-green-300">
+            <%= TransactionService.format_eth_value_detailed(@player_average_cost) %>
+          </div>
+          <div class="text-xs opacity-75 mt-1">rollDice transactions</div>
+        </div>
 
-               <!-- Player Average -->
-               <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-                 <div class="text-lg font-semibold mb-2">Player Average</div>
-                 <div class="text-2xl font-bold text-green-300">
-                   <%= TransactionService.format_eth_value_detailed(@player_average_cost) %>
-                 </div>
-                 <div class="text-xs opacity-75 mt-1">Commit + Reveal transactions</div>
-               </div>
+        <!-- VRF Average -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+          <div class="text-lg font-semibold mb-2">VRF Callback Average</div>
+          <div class="text-2xl font-bold text-yellow-300">
+            <%= TransactionService.format_eth_value_detailed(@vrf_average_cost) %>
+          </div>
+          <div class="text-xs opacity-75 mt-1">VRF callback transactions</div>
+        </div>
       </div>
     </div>
-    
+
     <!-- Transaction Counts -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="bg-white rounded-lg shadow p-4">
         <div class="text-center">
           <div class="text-2xl font-bold text-blue-600"><%= @total_transactions %></div>
@@ -53,20 +53,14 @@
       </div>
       <div class="bg-white rounded-lg shadow p-4">
         <div class="text-center">
-          <div class="text-2xl font-bold text-blue-500"><%= @commit_count %></div>
-          <div class="text-sm text-gray-600">Commits</div>
+          <div class="text-2xl font-bold text-blue-500"><%= @roll_dice_count %></div>
+          <div class="text-sm text-gray-600">Roll Dice</div>
         </div>
       </div>
       <div class="bg-white rounded-lg shadow p-4">
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-500"><%= @reveal_count %></div>
-          <div class="text-sm text-gray-600">Reveals</div>
-        </div>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-green-500"><%= @multi_post_randomness_count %></div>
-          <div class="text-sm text-gray-600">MultiPost</div>
+          <div class="text-2xl font-bold text-green-500"><%= @vrf_callback_count %></div>
+          <div class="text-sm text-gray-600">VRF Callbacks</div>
         </div>
       </div>
     </div>
@@ -81,13 +75,12 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center space-x-3 mb-3">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    <%= case transaction.function_signature.name
-                        when 'commit' then 'bg-blue-100 text-blue-800'
-                        when 'multiPostRandomness' then 'bg-green-100 text-green-800'
-                        when 'reveal' then 'bg-purple-100 text-purple-800'
+                    <%= case transaction.method
+                        when 'rollDice' then 'bg-blue-100 text-blue-800'
+                        when 'vrfCallback' then 'bg-green-100 text-green-800'
                         else 'bg-gray-100 text-gray-800'
                         end %>">
-                    <%= transaction.function_signature.name %>
+                    <%= transaction.method %>
                   </span>
                 </div>
                 
