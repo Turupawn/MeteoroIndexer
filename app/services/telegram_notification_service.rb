@@ -88,7 +88,7 @@ class TelegramNotificationService
       limit = [new_games_count, 10].max
       
       # Calculate average costs from recent transactions
-      house_cost = Transaction.house_average_cost
+      house_cost = Transaction.vrf_average_cost
       player_cost = Transaction.player_average_cost
       
       if house_cost && player_cost
