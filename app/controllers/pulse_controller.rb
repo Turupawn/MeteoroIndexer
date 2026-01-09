@@ -1,7 +1,7 @@
 class PulseController < ApplicationController
   def index
     # Transaction costs (from Transactions table)
-    @house_average_cost = Transaction.house_average_cost || 0
+    @house_average_cost = Transaction.vrf_average_cost || 0
     @player_average_cost = Transaction.player_average_cost || 0
     
     # Wallet statistics (from Games table)
@@ -27,8 +27,8 @@ class PulseController < ApplicationController
     end_date = Time.current.end_of_day
 
     # Group games by day - SQLite returns date as string in 'YYYY-MM-DD' format
-    data = Game.where(commit_timestamp: start_date..end_date)
-               .group("date(commit_timestamp)")
+    data = Game.where(completed_timestamp: start_date..end_date)
+               .group("date(completed_timestamp)")
                .count
 
     # Create structured data for Chart.js
@@ -61,7 +61,7 @@ class PulseController < ApplicationController
     dates = (start_date.to_date..end_date.to_date).to_a
     
     unique_counts = dates.map do |date|
-      Game.where("date(commit_timestamp) = ?", date.to_s)
+      Game.where("date(completed_timestamp) = ?", date.to_s)
           .distinct
           .count(:player_address)
     end
@@ -102,7 +102,7 @@ class PulseController < ApplicationController
     total_games_so_far = 0
     
     dates.each do |date|
-      games_on_date = Game.where("date(commit_timestamp) <= ?", date.to_s).count
+      games_on_date = Game.where("date(completed_timestamp) <= ?", date.to_s).count
       total_games_so_far = games_on_date
       cumulative_games << total_games_so_far
     end

@@ -12,8 +12,9 @@ class EthBalanceService
           abi: abi
         )
         
-        house_address = client.call(contract, "HOUSE")
-        
+        # Get the contract balance directly using getContractBalance
+        balance_wei = client.call(contract, "getContractBalance")
+
         # Get the gacha token address from the contract
         gacha_token_address = client.call(contract, "gachaToken")
         Rails.logger.info "Retrieved gacha token address: #{gacha_token_address}"
@@ -65,12 +66,9 @@ class EthBalanceService
           gacha_total_supply = 0
         end
         
-        balance_wei = client.get_balance(house_address)
-        
         balance_eth = balance_wei.to_f / (10**18)
-        
+
         {
-          house_address: house_address,
           gacha_token_address: gacha_token_address,
           contract_address: contract_address,
           gacha_total_supply: gacha_total_supply,
@@ -81,7 +79,6 @@ class EthBalanceService
       rescue => e
         Rails.logger.error "Failed to fetch house ETH balance: #{e.message}"
         {
-          house_address: nil,
           gacha_token_address: nil,
           contract_address: BlockchainConfig.contract_address,
           gacha_total_supply: 0,

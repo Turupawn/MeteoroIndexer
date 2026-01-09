@@ -40,15 +40,7 @@
         
         <!-- Address Information -->
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- House Address -->
-            <div class="text-center">
-              <div class="text-sm font-medium text-blue-200 mb-1">House Address</div>
-              <a href="<%= BlockchainConfig.block_explorer_url %>/address/<%= @house_balance[:house_address] %>" target="_blank" class="text-xs text-blue-200 hover:text-blue-100 underline break-all">
-                <%= @house_balance[:house_address] %>
-              </a>
-            </div>
-            
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Contract Address -->
             <div class="text-center">
               <div class="text-sm font-medium text-blue-200 mb-1">Contract Address</div>

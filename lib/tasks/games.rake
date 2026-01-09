@@ -85,6 +85,11 @@ namespace :games do
       game.apply_completion(completion_data)
       if game.save
         puts "Completed game ID #{game.game_id} (result: #{game.result})"
+
+        # Send big win notification for high-card ties (A-A, K-K, Q-Q, J-J)
+        if game.tie? && game.player_card.to_i == game.house_card.to_i && [14, 13, 12, 11].include?(game.player_card.to_i)
+          TelegramNotificationService.send_big_win_notification(game)
+        end
       else
         puts "Failed to update game #{game.game_id}: #{game.errors.full_messages.join(', ')}"
       end

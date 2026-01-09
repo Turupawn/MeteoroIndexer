@@ -51,6 +51,26 @@ class TelegramNotificationService
       end
     end
 
+    def send_big_win_notification(game)
+      return unless TelegramConfig.enabled?
+
+      # Card value to name mapping for face cards
+      card_names = { 14 => "A", 13 => "K", 12 => "Q", 11 => "J" }
+      card_value = game.player_card.to_i
+      card_name = card_names[card_value]
+
+      return unless card_name # Only notify for A, K, Q, J ties
+
+      # Truncate address to first 6 chars (0x + 4)
+      short_address = game.player_address[0, 6] + "..."
+
+      message = "🎰 <b>BIG WIN!</b>\n\n" \
+                "#{short_address} hit a <b>#{card_name}-#{card_name}</b> tie!\n" \
+                "💰 Jackpot bonus earned!"
+
+      send_message(message)
+    end
+
     def send_sync_error_notification(error_message)
       return unless TelegramConfig.send_error_notification?
       

@@ -118,7 +118,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('turbo:load', function() {
     // Games per Day Chart
     const gamesCtx = document.getElementById('gamesPerDayChart').getContext('2d');
     const gamesData = <%= raw @games_per_day_data.to_json %>;
