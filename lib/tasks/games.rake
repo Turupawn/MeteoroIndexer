@@ -12,23 +12,31 @@ namespace :games do
       limit = BlockchainConfig.max_games_to_process
       new_games = IndexerService.fetch_games(last_id: highest_game_id, limit: limit)
 
+      # Fetch completions upfront so we can create games as completed directly
+      completions = IndexerService.fetch_completions(last_id: highest_game_id, limit: limit)
+      completions_by_id = completions.index_by { |c| c["id"].to_i }
+
+      actually_created_count = 0
+
       if new_games.empty?
         puts "No new games found"
       else
         puts "Found #{new_games.length} new game requests"
 
-        # Create pending games from requests
+        # Create games, applying completion data if available
         new_games.each do |game_data|
-          create_or_update_game_from_request(game_data)
+          game_id = game_data["id"].to_i
+          completion_data = completions_by_id[game_id]
+          result = create_or_update_game(game_data, completion_data)
+          actually_created_count += 1 if result == :created
         end
       end
 
-      # Update pending games with completion data
+      # Update any remaining pending games with completion data
       sync_pending_games
 
-      # Record sync statistics
-      new_games_count = new_games.length
-      TelegramNotificationService.record_sync_and_notify_if_needed(new_games_count)
+      # Record sync statistics - only count actually created games
+      TelegramNotificationService.record_sync_and_notify_if_needed(actually_created_count)
 
     rescue => e
       puts "Error in VRF games sync: #{e.message}"
@@ -40,22 +48,36 @@ namespace :games do
 
   private
 
-  def create_or_update_game_from_request(request_data)
-    game_id = request_data["id"].to_i
+  def create_or_update_game(game_data, completion_data = nil)
+    game_id = game_data["id"].to_i
     existing_game = Game.find_by(game_id: game_id)
 
     if existing_game
       puts "Game #{game_id} already exists, skipping"
-      return existing_game
+      return :existing
     end
 
-    game = Game.from_ponder_request(request_data)
+    # Create game - as completed if we have completion data, otherwise as pending
+    if completion_data
+      game = Game.from_ponder_completed(game_data, completion_data)
+      state_label = "completed"
+    else
+      game = Game.from_ponder_request(game_data)
+      state_label = "pending"
+    end
+
     if game.save
-      puts "Created pending game ID #{game_id}"
-      game
+      puts "Created #{state_label} game ID #{game_id}"
+
+      # Send big win notification for high-card ties created as completed
+      if game.completed? && game.tie? && [14, 13, 12, 11].include?(game.player_card.to_i)
+        TelegramNotificationService.send_big_win_notification(game)
+      end
+
+      :created
     else
       puts "Failed to save game #{game_id}: #{game.errors.full_messages.join(', ')}"
-      nil
+      :failed
     end
   end
 
